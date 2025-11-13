@@ -1,0 +1,2 @@
+# SpotifyQueueBox
+QueueBox
