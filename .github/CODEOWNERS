@@ -1,0 +1,19 @@
+# This file defines code ownership for the SpotifyQueueBox project
+# Each line is a file pattern followed by one or more owners
+
+# Default owner for everything in the repo
+* @anilerciyas
+
+# Specific ownership for critical files
+/.env.example @anilerciyas
+/app.py @anilerciyas
+/spotify_client.py @anilerciyas
+/requirements.txt @anilerciyas
+
+# Documentation
+/README.md @anilerciyas
+/USAGE.md @anilerciyas
+/LICENSE @anilerciyas
+
+# Scripts
+/spotify-queue.sh @anilerciyas
