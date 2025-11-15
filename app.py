@@ -5,7 +5,7 @@ Flask API for adding tracks to Spotify queue.
 import os
 import base64
 import requests
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, send_from_directory
 from spotify_client import (
     extract_track_id_from_url,
     add_track_to_queue,
@@ -16,7 +16,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
+
+
+@app.route("/", methods=["GET"])
+def index():
+    """Serve the web UI."""
+    return send_from_directory('static', 'index.html')
 
 
 @app.route("/health", methods=["GET"])

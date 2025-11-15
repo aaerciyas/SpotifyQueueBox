@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Queue Box</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1DB954 0%, #191414 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: #b3b3b3;
+            font-size: 1.1em;
+        }
+
+        .status-bar {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #1DB954;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            color: #1DB954;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #b3b3b3;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #1DB954;
+            background: rgba(255,255,255,0.1);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        button {
+            background: #1DB954;
+            color: #fff;
+            border: none;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(29,185,84,0.3);
+        }
+
+        button:hover {
+            background: #1ed760;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29,185,84,0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .playback-info {
+            display: grid;
+            gap: 15px;
+        }
+
+        .info-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #1DB954;
+        }
+
+        .info-label {
+            color: #b3b3b3;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.success {
+            background: rgba(29,185,84,0.2);
+            border: 1px solid #1DB954;
+            color: #1DB954;
+        }
+
+        .message.error {
+            background: rgba(244,67,54,0.2);
+            border: 1px solid #f44336;
+            color: #ffcdd2;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1DB954;
+            transition: width 0.3s;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .examples {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .examples h4 {
+            color: #1DB954;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .examples code {
+            display: block;
+            color: #b3b3b3;
+            font-size: 0.85em;
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Spotify Queue Box</h1>
+            <p class="subtitle">Add tracks to your Spotify queue instantly</p>
+        </header>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="statusText">API Ready</span>
+            </div>
+            <button onclick="checkHealth()" style="padding: 8px 20px; font-size: 14px;">Check Health</button>
+        </div>
+
+        <div class="card">
+            <h2>Add Track to Queue</h2>
+            <form id="addTrackForm">
+                <div class="form-group">
+                    <label for="trackUrl">Spotify Track URL, URI, or ID</label>
+                    <input
+                        type="text"
+                        id="trackUrl"
+                        name="trackUrl"
+                        placeholder="https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp"
+                        required
+                    >
+                </div>
+                <button type="submit" id="addBtn">Add to Queue</button>
+            </form>
+
+            <div class="examples">
+                <h4>Supported formats:</h4>
+                <code>https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp</code>
+                <code>spotify:track:3n3Ppam7vgaVa1iaRUc9Lp</code>
+                <code>3n3Ppam7vgaVa1iaRUc9Lp</code>
+            </div>
+
+            <div id="addMessage" class="message"></div>
+        </div>
+
+        <div class="card">
+            <h2>Current Playback</h2>
+            <div class="button-group">
+                <button onclick="getPlayback()" id="playbackBtn">Refresh Playback Info</button>
+            </div>
+            <div id="playbackInfo" class="playback-info" style="margin-top: 20px;"></div>
+            <div id="playbackMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        // Add track to queue
+        document.getElementById('addTrackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const trackUrl = document.getElementById('trackUrl').value;
+            const addBtn = document.getElementById('addBtn');
+            const messageDiv = document.getElementById('addMessage');
+
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<span class="loading"></span> Adding...';
+            messageDiv.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/add_track`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ track_url: trackUrl })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('addMessage', 'success', `✓ ${data.message || 'Track added to queue!'}`);
+                    document.getElementById('trackUrl').value = '';
+                    // Auto-refresh playback info
+                    setTimeout(getPlayback, 500);
+                } else {
+                    showMessage('addMessage', 'error', `✗ ${data.error || 'Failed to add track'}`);
+                }
+            } catch (error) {
+                showMessage('addMessage', 'error', `✗ Network error: ${error.message}`);
+            } finally {
+                addBtn.disabled = false;
+                addBtn.textContent = 'Add to Queue';
+            }
+        });
+
+        // Get current playback
+        async function getPlayback() {
+            const playbackBtn = document.getElementById('playbackBtn');
+            const playbackInfo = document.getElementById('playbackInfo');
+            const messageDiv = document.getElementById('playbackMessage');
+
+            playbackBtn.disabled = true;
+            playbackBtn.innerHTML = '<span class="loading"></span> Loading...';
+            messageDiv.style.display = 'none';
+            playbackInfo.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/playback`);
+                const data = await response.json();
+
+                if (response.ok && data.status !== 'no_playback') {
+                    const progressPercent = (data.progress_ms / data.track.duration_ms) * 100;
+
+                    playbackInfo.innerHTML = `
+                        <div class="info-item">
+                            <div class="info-label">Track</div>
+                            <div class="info-value">${data.track.name}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Artist</div>
+                            <div class="info-value">${data.track.artist}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Album</div>
+                            <div class="info-value">${data.track.album}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Device</div>
+                            <div class="info-value">${data.device.name} (${data.device.type})</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">${data.is_playing ? '▶️ Playing' : '⏸️ Paused'}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    showMessage('playbackMessage', 'error', data.message || 'Nothing is currently playing');
+                }
+            } catch (error) {
+                showMessage('playbackMessage', 'error', `Network error: ${error.message}`);
+            } finally {
+                playbackBtn.disabled = false;
+                playbackBtn.textContent = 'Refresh Playback Info';
+            }
+        }
+
+        // Check API health
+        async function checkHealth() {
+            const statusText = document.getElementById('statusText');
+            const originalText = statusText.textContent;
+
+            statusText.innerHTML = '<span class="loading"></span> Checking...';
+
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                if (response.ok && data.status === 'ok') {
+                    statusText.textContent = '✓ API Healthy';
+                    setTimeout(() => {
+                        statusText.textContent = originalText;
+                    }, 2000);
+                } else {
+                    statusText.textContent = '✗ API Error';
+                }
+            } catch (error) {
+                statusText.textContent = '✗ API Offline';
+            }
+        }
+
+        // Utility function to show messages
+        function showMessage(elementId, type, text) {
+            const messageDiv = document.getElementById(elementId);
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+        }
+
+        // Check health on load
+        checkHealth();
+    </script>
+</body>
+</html>
